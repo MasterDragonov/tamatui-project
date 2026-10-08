@@ -45,14 +45,15 @@ def main(stdscr):
     player_y = 5
     player_x = 5
 
+
+    # Window size to calculate tiles to fit on screen
+    max_y, max_x = stdscr.getmaxyx()
+    visible_tiles_y = max_y // 2
+    visible_tiles_x = max_x // 4
+
     # Game loop
     while True:
         stdscr.clear()
-
-        # Window size to calculate tiles to fit on screen
-        max_y, max_x = stdscr.getmaxyx()
-        visible_tiles_y = max_y // 2
-        visible_tiles_x = max_x // 4
 
         # Camera viewport, center the camera over the moving player
         camera_y = player_y - (visible_tiles_y // 2)
@@ -90,6 +91,8 @@ def main(stdscr):
                         stdscr.addstr(y_pos1, x_pos, lines[0], color)
                         stdscr.addstr(y_pos2, x_pos, lines[1], color)
 
+        stdscr.noutrefresh()
+
         #Player co-ordinates
         player_screen_y = (player_y - camera_y) * 2
         player_screen_x = (player_x - camera_x) * 4
@@ -98,8 +101,6 @@ def main(stdscr):
             player_color = curses.color_pair(4)
             stdscr.addstr(player_screen_y, player_screen_x, "++++", player_color)
             stdscr.addstr(player_screen_y + 1, player_screen_x, "++++", player_color)
-
-        stdscr.refresh()
 
         #Player movement
         key = stdscr.getch()
