@@ -1,20 +1,7 @@
 import curses
-from maploader import load_map
+from maploader import load_map, TILE_LOOKUP
 
 TILE_MAP_FILE = "map1.txt"
-
-# Dictionary that defines the ASCII shapes and colours for map elemts.
-# Strings are 4 characters wide to ensure game window is not squashed.
-TILE_LOOKUP = {
-    0: (["░░░░", 
-         "░░░░"], curses.COLOR_GREEN),   # Grass
-    
-    1: (["♣♣♣♣", 
-         "♣♣♣♣"], curses.COLOR_YELLOW),  # Trees
-    
-    2: (["░░░░", 
-         "░░░░"], curses.COLOR_BLUE)     # Water
-}
 
 
 def main(stdscr):
@@ -48,7 +35,7 @@ def main(stdscr):
 
     # Window size to calculate tiles to fit on screen
     max_y, max_x = stdscr.getmaxyx()
-    visible_tiles_y = max_y // 2
+    visible_tiles_y = (max_y - 1) // 2
     visible_tiles_x = max_x // 4
 
     # Game loop
@@ -97,7 +84,7 @@ def main(stdscr):
         player_screen_y = (player_y - camera_y) * 2
         player_screen_x = (player_x - camera_x) * 4
 
-        if 0 <= player_screen_y < max_y and 0 <= player_screen_x + 3 < max_x:
+        if 0 <= player_screen_y + 1 < max_y - 1 and 0 <= player_screen_x + 3 < max_x:
             player_color = curses.color_pair(4)
             stdscr.addstr(player_screen_y, player_screen_x, "++++", player_color)
             stdscr.addstr(player_screen_y + 1, player_screen_x, "++++", player_color)
