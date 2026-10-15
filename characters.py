@@ -27,6 +27,21 @@ class Character:
 
 if __name__ == "__main__":
     hero = Character("Lucas", 30, 6, 3,)
-    slime = Character("SLime", 12, 4, 1)
+    slime = Character("Slime", 12, 4, 1)
 
     while hero.is_alive() and slime.is_alive():
+        damage = hero.attack_target(slime)
+        print(f"{hero.name} hits {slime.name} for {damage}. "
+              f"{slime.name} HP: {slime.hp}")
+
+
+        if slime.is_alive():
+            damage = slime.attack_target(hero)
+            print(f"{slime.name} hits {hero.name} for {damage}. "
+                  f"{hero.name} HP: {hero.hp}")
+
+    if hero.is_alive():
+        print(f"{hero.name} wins!")
+    else:
+         print(f"{slime.name} wins!")
+
