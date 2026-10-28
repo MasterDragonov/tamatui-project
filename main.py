@@ -1,5 +1,6 @@
 import curses
 from maploader import load_map, TILE_LOOKUP
+from collision import is_walkable
 
 TILE_MAP_FILE = "map1.txt"
 
@@ -89,17 +90,29 @@ def main(stdscr):
             stdscr.addstr(player_screen_y, player_screen_x, "++++", player_color)
             stdscr.addstr(player_screen_y + 1, player_screen_x, "++++", player_color)
 
+    
         #Player movement
         key = stdscr.getch()
         if key == ord('q'):
             break
-        elif key == curses.KEY_UP and player_y > 0:
-            player_y -= 1
-        elif key == curses.KEY_DOWN and player_y < map_height - 1:
-            player_y += 1
-        elif key == curses.KEY_LEFT and player_x > 0:
-            player_x -= 1
-        elif key == curses.KEY_RIGHT and player_x < map_width - 1:
-            player_x += 1
+
+        # start the target at the player's current position
+        new_x = player_x
+        new_y = player_y
+
+        if key == curses.KEY_UP:
+            new_y -= 1
+        elif key == curses.KEY_DOWN:
+            new_y += 1
+        elif key == curses.KEY_LEFT:
+            new_x -= 1
+        elif key == curses.KEY_RIGHT:
+            new_x += 1
+
+        can_move = is_walkable(tile_map_grid, new_ym new_x)
+
+        if can_move == True:
+            player_y = new_y
+            player_x = new_x
 
 curses.wrapper(main)
