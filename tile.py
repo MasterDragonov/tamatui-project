@@ -4,7 +4,8 @@ class Tile:
     TILE_LOOKUP = {
         0: (["░░░░", "░░░░"], curses.COLOR_GREEN),   # Grass
         1: (["♣♣♣♣", "♣♣♣♣"], curses.COLOR_YELLOW),  # Trees
-        2: (["░░░░", "░░░░"], curses.COLOR_BLUE)     # Water
+        2: (["░░░░", "░░░░"], curses.COLOR_BLUE),    # Water
+        3: (["· ° ", "   ·"], curses.COLOR_WHITE)    # Cave
     }
 
     def __init__(self, tile_type):
