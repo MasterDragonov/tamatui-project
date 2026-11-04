@@ -1,19 +1,28 @@
 import curses
+from collision import is_walkable
 
 class Player:
     def __init__(self):
         self.player_y = 5
         self.player_x = 5
 
-    def handle_movement(self, key, map_height, map_width):
-        if key == curses.KEY_UP and self.player_y > 0:
-            self.player_y -= 1
-        elif key == curses.KEY_DOWN and self.player_y < map_height - 1:
-            self.player_y += 1
-        elif key == curses.KEY_LEFT and self.player_x > 0:
-            self.player_x -= 1
-        elif key == curses.KEY_RIGHT and self.player_x < map_width - 1:
-            self.player_x += 1
+    def handle_movement(self, key, tile_map_grid):
+
+        new_y = self.player_y
+        new_x = self.player_x
+
+        if key == curses.KEY_UP:
+            new_y -= 1
+        elif key == curses.KEY_DOWN:
+            new_y += 1
+        elif key == curses.KEY_LEFT:
+            new_x -= 1
+        elif key == curses.KEY_RIGHT:
+            new_x += 1
+
+        if is_walkable(tile_map_grid, new_y, new_x):
+            self.player_y = new_y
+            self.player_x = new_x
 
     def draw(self, stdscr, camera_y, camera_x, max_y, max_x):
         player_screen_y = (self.player_y - camera_y) * 2

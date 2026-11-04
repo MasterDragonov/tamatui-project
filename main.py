@@ -53,7 +53,7 @@ class GameEngine:
             if key == ord('q'):
                 break
             
-            self.player.handle_movement(key, self.game_map.map_height, self.game_map.map_width)
+            self.player.handle_movement(key, self.game_map.tile_map_grid)
 
 if __name__ == "__main__":
     engine = GameEngine("map1.txt")
