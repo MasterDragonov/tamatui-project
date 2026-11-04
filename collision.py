@@ -1,4 +1,4 @@
-WALKABLE_TILES = {0}
+WALKABLE_TILES = {0, 4}
 
 def is_walkable(grid, y, x):
     map_height = len(grid) - 1 # find the map height -1 for buffer
@@ -11,3 +11,4 @@ def is_walkable(grid, y, x):
     if tile in WALKABLE_TILES:
         return True
     return False
+

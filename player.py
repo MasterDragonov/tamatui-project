@@ -19,10 +19,17 @@ class Player:
             new_x -= 1
         elif key == curses.KEY_RIGHT:
             new_x += 1
+        else:
+            return False
 
-        if is_walkable(tile_map_grid, new_y, new_x):
+        can_move = is_walkable(tile_map_grid, new_y, new_x)
+        
+        if can_move:
             self.player_y = new_y
             self.player_x = new_x
+            return True
+        else:
+            return False
 
     def draw(self, stdscr, camera_y, camera_x, max_y, max_x):
         player_screen_y = (self.player_y - camera_y) * 2

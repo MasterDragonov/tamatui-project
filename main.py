@@ -2,6 +2,7 @@ import curses
 from game_map import GameMap
 from player import Player
 from camera import Camera
+from encounter import check_encounter
 
 class GameEngine:
     def __init__(self, tile_map_file):
@@ -23,7 +24,9 @@ class GameEngine:
             0: curses.color_pair(1),
             1: curses.color_pair(2),
             2: curses.color_pair(3),
-            3: curses.color_pair(5)
+            3: curses.color_pair(5),
+            4: curses.color_pair(1)
+
         }
         curses.curs_set(0)
         stdscr.keypad(True)
@@ -53,7 +56,15 @@ class GameEngine:
             if key == ord('q'):
                 break
             
-            self.player.handle_movement(key, self.game_map.tile_map_grid)
+            player_has_moved = self.player.handle_movement(key, self.game_map.tile_map_grid)
+
+            if player_has_moved:
+                player_will_encounter = check_encounter(self.game_map.tile_map_grid, self.player.player_y, self.player.player_x)
+                if player_will_encounter:
+                    stdscr.addstr(0,0,"you have encountered a monster")
+                    stdscr.getch()
+
+
 
 if __name__ == "__main__":
     engine = GameEngine("map1.txt")

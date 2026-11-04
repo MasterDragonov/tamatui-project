@@ -5,7 +5,8 @@ class Tile:
         0: (["░░░░", "░░░░"], curses.COLOR_GREEN),   # Grass
         1: (["♣♣♣♣", "♣♣♣♣"], curses.COLOR_YELLOW),  # Trees
         2: (["░░░░", "░░░░"], curses.COLOR_BLUE),    # Water
-        3: (["· ° ", "   ·"], curses.COLOR_WHITE)    # Cave
+        3: (["· ° ", "   ·"], curses.COLOR_WHITE),   # Cave
+        4: (["ψψψψ", "ψψψψ"], curses.COLOR_GREEN)    # Tall Grass
     }
 
     def __init__(self, tile_type):
