@@ -1,8 +1,9 @@
 class Character:
     """A fighter in the game: the player or an enemy."""
 
-    def __init__(self, name, max_hp, attack, defence, max_mp=0):
+    def __init__(self, name, level, max_hp, attack, defence, max_mp=0):
         self.name = name
+        self.level = level
         self.max_hp = max_hp
         self.hp = max_hp
         self.attack = attack
@@ -37,7 +38,7 @@ class Warrior(Character):
     """Sturdy front-line fighter"""
 
     def ___init__(self, name):
-        super().__init__(name, max_hp=40, attack=6, defence=5)
+        super().__init__(name, level=1, max_hp=40, attack=6, defence=5)
         self.job = "Warrior"
 
 
@@ -51,7 +52,7 @@ class Ranger(Character):
     """Quick archer: balanced stats, strikes twice with arrows."""
 
     def __init__(self, name):
-        super().__init__(name, max_hp=32, attack=5, defence=3)
+        super().__init__(name, level=1, max_hp=32, attack=5, defence=3)
         self.job = "Ranger"
 
     def double_shot(self, target):
@@ -69,7 +70,7 @@ class Mage(Character):
     FIREBALL_COST = 3
 
     def __init__(self, name):
-        super().__init__(name, max_hp=24, attack=8, defence=1, max_mp=10)
+        super().__init__(name, level=1, max_hp=24, attack=8, defence=1, max_mp=10)
         self.job = "Mage"
 
     def fireball(self, target):
