@@ -3,10 +3,12 @@ import curses
 class Tile:
     TILE_LOOKUP = {
         0: (["░░░░", "░░░░"], curses.COLOR_GREEN),   # Grass
-        1: (["♣♣♣♣", "♣♣♣♣"], curses.COLOR_YELLOW),  # Trees
+        1: (["🌲🌲", "🌲🌲"], curses.COLOR_YELLOW),  # Trees
         2: (["░░░░", "░░░░"], curses.COLOR_BLUE),    # Water
-        3: (["· ° ", "   ·"], curses.COLOR_WHITE),   # Cave
-        4: (["ψψψψ", "ψψψψ"], curses.COLOR_GREEN)    # Tall Grass
+        3: (["🗻🗻", "🗻🗻"], curses.COLOR_WHITE),   # Cave
+        4: (["ψψψψ", "ψψψψ"], curses.COLOR_GREEN),    # Tall Grass
+        5: (["▓▓▓▓", "▓▓▓▓"], curses.COLOR_WHITE)    # Rock
+
     }
 
     def __init__(self, tile_type):

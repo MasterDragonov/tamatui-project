@@ -1,3 +1,12 @@
+TRANSITIONS = {
+    "map1.txt": {
+        (31,22): ("map2.txt", 35, 6) # (31,22) is the doorway to the cave in map1 and reappear at (35,6) of map2
+    },
+    "map2.txt": {
+        (37,6): ("map1.txt", None, None)
+    }
+}
+
 import curses
 from game_map import GameMap
 from player import Player
@@ -8,6 +17,7 @@ class GameEngine:
     def __init__(self, tile_map_file):
         self.tile_map_file = tile_map_file
         self.game_map = GameMap(tile_map_file)
+        self.game_map.transitions = TRANSITIONS[tile_map_file] # doorways located in each map that will trigger transitions
         self.player = Player()
         self.camera = Camera()
 
@@ -25,9 +35,10 @@ class GameEngine:
             1: curses.color_pair(2),
             2: curses.color_pair(3),
             3: curses.color_pair(5),
-            4: curses.color_pair(1)
-
+            4: curses.color_pair(1),
+            5: curses.color_pair(5)
         }
+        
         curses.curs_set(0)
         stdscr.keypad(True)
 
@@ -55,14 +66,36 @@ class GameEngine:
             key = stdscr.getch()
             if key == ord('q'):
                 break
-            
+
+            old_y =self.player.player_y
+            old_x = self.player.player_x
+    
             player_has_moved = self.player.handle_movement(key, self.game_map.tile_map_grid)
 
             if player_has_moved:
-                player_will_encounter = check_encounter(self.game_map.tile_map_grid, self.player.player_y, self.player.player_x)
-                if player_will_encounter:
-                    stdscr.addstr(0,0,"you have encountered a monster")
-                    stdscr.getch()
+                transition = self.game_map.check_transition(self.player.player_y, self.player.player_x)
+                if transition:
+                    target_map = transition[0]
+                    target_y = transition[1]
+                    target_x = transition[2]
+
+                    if target_y is None:
+                        target_y = self.return_point[0]
+                        target_x = self.return_point[1]
+                    else:
+                        self.return_point = (old_y, old_x)
+
+                    self.game_map = GameMap(target_map)
+                    self.game_map.transitions = TRANSITIONS[target_map]
+
+                    self.player.player_y = target_y
+                    self.player.player_x = target_x
+
+                else:
+                    player_will_encounter = check_encounter(self.game_map.tile_map_grid, self.player.player_y, self.player.player_x)
+                    if player_will_encounter:
+                        stdscr.addstr(0,0,"you have encountered a monster")
+                        stdscr.getch()
 
 
 
