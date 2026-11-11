@@ -32,7 +32,7 @@ class GameEngine:
             stdscr.clear()
 
             max_y, max_x = stdscr.getmaxyx()
-            visible_tiles_y = max_y // 2
+            visible_tiles_y = (max_y - 1) // 2
             visible_tiles_x = max_x // 4
 
             self.camera.update(
