@@ -1,60 +1,69 @@
+"""TamaTUI RPG: starts curses and runs the game states."""
 import curses
-from game_map import GameMap
-from player import Player
-from camera import Camera
 
-class GameEngine:
-    def __init__(self, tile_map_file):
-        self.tile_map_file = tile_map_file
-        self.game_map = GameMap(tile_map_file)
-        self.player = Player()
-        self.camera = Camera()
+from game_data import Game
+from states.title import TitleState
 
-    def run(self, stdscr):
-        curses.start_color()
-        curses.use_default_colors()
-        curses.init_pair(1, curses.COLOR_GREEN, -1)
-        curses.init_pair(2, curses.COLOR_YELLOW, -1)
-        curses.init_pair(3, curses.COLOR_BLUE, -1)
-        curses.init_pair(4, curses.COLOR_RED, -1) 
-        curses.init_pair(5, curses.COLOR_WHITE, -1) 
 
-        color_map = {
-            0: curses.color_pair(1),
-            1: curses.color_pair(2),
-            2: curses.color_pair(3),
-            3: curses.color_pair(5)
-        }
-        curses.curs_set(0)
-        stdscr.keypad(True)
+def setup_colors():
+    """Create the colour pairs and return the tile -> colour lookup."""
+    curses.start_color()
+    curses.use_default_colors()
+    curses.init_pair(1, curses.COLOR_GREEN, -1)
+    curses.init_pair(2, curses.COLOR_YELLOW, -1)
+    curses.init_pair(3, curses.COLOR_BLUE, -1)
+    curses.init_pair(4, curses.COLOR_RED, -1)  # player
+    curses.init_pair(5, curses.COLOR_WHITE, -1)
+    return {
+        0: curses.color_pair(1),
+        1: curses.color_pair(2),
+        2: curses.color_pair(3),
+        3: curses.color_pair(5),
+    }
 
-        while True:
-            stdscr.clear()
 
-            max_y, max_x = stdscr.getmaxyx()
-            visible_tiles_y = (max_y - 1) // 2
-            visible_tiles_x = max_x // 4
+def draw_stack(screen, stack):
+    """Draw visible states bottom to top, then show them at once."""
+    screen.erase()
+    start = len(stack) - 1
+    while start > 0 and stack[start].is_overlay:
+        start -= 1
+    for state in stack[start:]:
+        state.draw(screen)
+    screen.refresh()
 
-            self.camera.update(
-                self.player.player_y, self.player.player_x, 
-                visible_tiles_y, visible_tiles_x, 
-                self.game_map.map_height, self.game_map.map_width
-            )
 
-            self.game_map.draw(
-                stdscr, self.camera, visible_tiles_y, visible_tiles_x, 
-                max_y, max_x, color_map
-            )
+def apply_request(stack, game, state):
+    """The only place where states are switched."""
+    if state.request is None:
+        return
+    kind, new_state = state.request
+    state.request = None
+    if kind == "push":
+        stack.append(new_state)
+    elif kind == "pop":
+        stack.pop()
+    elif kind == "replace":
+        stack[-1] = new_state
+    elif kind == "quit":
+        game.running = False
 
-            stdscr.noutrefresh()
-            self.player.draw(stdscr, self.camera.camera_y, self.camera.camera_x, max_y, max_x)
 
-            key = stdscr.getch()
-            if key == ord('q'):
-                break
-            
-            self.player.handle_movement(key, self.game_map.tile_map_grid)
+def main(stdscr):
+    curses.curs_set(0)
+    stdscr.keypad(True)
+    game = Game()
+    game.color_map = setup_colors()
+    stack = [TitleState(game)]
+
+    while game.running and stack:
+        draw_stack(stdscr, stack)
+        top = stack[-1]
+        key = stdscr.getch()
+        top.handle_key(key)
+        top.update()
+        apply_request(stack, game, top)
+
 
 if __name__ == "__main__":
-    engine = GameEngine("map1.txt")
-    curses.wrapper(engine.run)
+    curses.wrapper(main)

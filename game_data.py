@@ -7,3 +7,4 @@ class Game:
     def __init__(self):
         self.running = True
         self.player = None  # set later by Character creation
+        self.color_map = {}  # tile type -> curses colour, set at start-up
