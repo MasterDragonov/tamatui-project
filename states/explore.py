@@ -23,16 +23,16 @@ class ExploreState(State):
             self.player.handle_movement(key, self.game_map.tile_map_grid)
 
     def draw(self, screen):
-            max_y, max_x = screen.getmaxyx()
-            visible_tiles_y = (max_y - 1) // 2
-            visible_tiles_x = max_x // 4
+        max_y, max_x = screen.getmaxyx()
+        visible_tiles_y = (max_y - 1) // 2
+        visible_tiles_x = max_x // 4
 
-            self.camera.update(self.player.player_y, self.player.player_x,
-                            visible_tiles_y, visible_tiles_x,
-                            self.game_map.map_height,
-                            self.game_map.map_width)
-            self.game_map.draw(screen, self.camera,
-                            visible_tiles_y, visible_tiles_x,
-                            max_y, max_x, self.game.color_map)
-            self.player.draw(screen, self.camera.camera_y,
-                            self.camera.camera_x, max_y, max_x)
+        self.camera.update(self.player.player_y, self.player.player_x,
+                           visible_tiles_y, visible_tiles_x,
+                           self.game_map.map_height,
+                           self.game_map.map_width)
+        self.game_map.draw(screen, self.camera,
+                           visible_tiles_y, visible_tiles_x,
+                           max_y, max_x, self.game.color_map)
+        self.player.draw(screen, self.camera.camera_y,
+                         self.camera.camera_x, max_y, max_x)
