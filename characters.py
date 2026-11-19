@@ -33,6 +33,10 @@ class Character:
         self.mp -= cost
         return True
 
+    def level_up(self):
+        self.level+= 1
+        
+
 
 class Warrior(Character):
     """Sturdy front-line fighter"""
