@@ -11,6 +11,7 @@ import curses
 from game_map import GameMap
 from player import Player
 from camera import Camera
+from battle import run_battle
 from encounter import check_encounter
 
 class GameEngine:
@@ -20,6 +21,8 @@ class GameEngine:
         self.game_map.transitions = TRANSITIONS[tile_map_file] # doorways located in each map that will trigger transitions
         self.player = Player()
         self.camera = Camera()
+        self.hero = Mage("Lucas")
+        self.return_point = (0, 0)
 
     def run(self, stdscr):
         curses.start_color()
@@ -94,8 +97,9 @@ class GameEngine:
                 else:
                     player_will_encounter = check_encounter(self.game_map.tile_map_grid, self.player.player_y, self.player.player_x)
                     if player_will_encounter:
-                        stdscr.addstr(0,0,"you have encountered a monster")
-                        stdscr.getch()
+                        battle_result = run_battle(stdscr, self.hero)
+                        if battle_result == "DEFEAT":
+                            break
 
 
 

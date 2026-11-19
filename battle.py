@@ -83,17 +83,21 @@ def render_screen(stdscr, player, monster, menu_opt, menu_select, log_text):
     menu_win.noutrefresh()
     curses.doupdate()
 
-def main(stdscr):
+def run_battle(stdscr, player):
     curses.curs_set(0)
     stdscr.keypad(True)
 
-    # Dynamic class loading setup
-    player = Mage("Lucas")
-    
     # Grab a random class-instantiated monster from the imported pool function
     monster = random.choice(monster_pool())
-    
-    special_move = "FIREBALL" if isinstance(player, Mage) else "ATTACK"
+
+    # Dynamic class loading setup
+    job = getattr(player, "job", "")
+    special_map = {
+        "Mage": "FIREBALL",
+        "Warrior": "POWER STRIKE",
+        "Ranger": "DOUBLE SHOT"
+    }
+    special_move = special_map.get(job, "SPECIAL")
     menu_options = ["ATTACK", special_move, "RUN"]
     selected_idx = 0
     log_text = f"A wild {monster.name} draws near! Command?"
@@ -121,8 +125,18 @@ def main(stdscr):
                 if dmg is None:
                     log_text = f"Not enough MP! {player.name} fails to cast Fireball."
                 else:
-                    log_text = f"{player.name} casts Fireball! Burned {monster.name} for {dmg} magic damage."
+                    log_text = f"{player.name} casts Fireball! Burned {monster.name} for {dmg} damage."
                     player_turn_done = True
+
+            elif action == "POWER STRIKE":
+                dmg = player.power_strike(monster)
+                log_text = f"{player.name} uses Power Strike! Dealt {dmg} damage."
+                player_turn_done = True
+
+            elif action == "DOUBLE SHOT":
+                dmg = player.double_shot(monster)
+                log_text = f"{player.name} fires Double Shot! Dealt {dmg} total damage."
+                player_turn_done = True
                 
             elif action == "RUN":
                 level_diff = player.level - monster.level
@@ -132,7 +146,7 @@ def main(stdscr):
                 if random.random() < escape_chance:
                     log_text = f"{player.name} fled the battlefield..."
                     render_screen(stdscr, player, monster, menu_options, selected_idx, log_text)
-                    time.sleep(1.2)
+                    time.sleep(1.7)
                     break
                 else:
                     log_text = f"{player.name} tried to run, but the path was blocked!"
@@ -140,7 +154,7 @@ def main(stdscr):
 
             if player_turn_done:
                 render_screen(stdscr, player, monster, menu_options, selected_idx, log_text)
-                time.sleep(1.2)
+                time.sleep(1.7)
                 
                 if monster.is_alive():
                     monster_dmg = monster.attack_target(player)
@@ -149,13 +163,15 @@ def main(stdscr):
                     log_text = f"The {monster.name} disintegrates! You win!"
                     
         elif key == 27:
-            break
+            return "ESCAPED"
 
     if not player.is_alive():
         log_text = f"{player.name} has fallen in battle... Game Over."
-    render_screen(stdscr, player, monster, menu_options, selected_idx, log_text)
-    time.sleep(2.0)
+        render_screen(stdscr, player, monster, menu_options, selected_idx, log_text)
+        time.sleep(2.0)
+        return "DEFEAT"
 
-if __name__ == "__main__":
-    curses.wrapper(main)
+    render_screen(stdscr, player, monster, menu_options, selected_idx, log_text)
+    time.sleep(1.5)
+    return "VICTORY"
 
