@@ -19,6 +19,8 @@ def setup_colors():
         1: curses.color_pair(2),
         2: curses.color_pair(3),
         3: curses.color_pair(5),
+        4: curses.color_pair(4),
+        5: curses.color_pair(5),
     }
 
 
