@@ -1,104 +1,71 @@
-TRANSITIONS = {
-    "map1.txt": {
-        (31,22): ("map2.txt", 35, 6) # (31,22) is the doorway to the cave in map1 and reappear at (35,6) of map2
-    },
-    "map2.txt": {
-        (37,6): ("map1.txt", None, None)
-    }
-}
-
+"""TamaTUI RPG: starts curses and runs the game states."""
 import curses
-from game_map import GameMap
-from player import Player
-from camera import Camera
-from encounter import check_encounter
 
-class GameEngine:
-    def __init__(self, tile_map_file):
-        self.tile_map_file = tile_map_file
-        self.game_map = GameMap(tile_map_file)
-        self.game_map.transitions = TRANSITIONS[tile_map_file] # doorways located in each map that will trigger transitions
-        self.player = Player()
-        self.camera = Camera()
+from game_data import Game
+from states.title import TitleState
 
-    def run(self, stdscr):
-        curses.start_color()
-        curses.use_default_colors()
-        curses.init_pair(1, curses.COLOR_GREEN, -1)
-        curses.init_pair(2, curses.COLOR_YELLOW, -1)
-        curses.init_pair(3, curses.COLOR_BLUE, -1)
-        curses.init_pair(4, curses.COLOR_RED, -1) 
-        curses.init_pair(5, curses.COLOR_WHITE, -1) 
 
-        color_map = {
-            0: curses.color_pair(1),
-            1: curses.color_pair(2),
-            2: curses.color_pair(3),
-            3: curses.color_pair(5),
-            4: curses.color_pair(1),
-            5: curses.color_pair(5)
-        }
-        
-        curses.curs_set(0)
-        stdscr.keypad(True)
+def setup_colors():
+    """Create the colour pairs and return the tile -> colour lookup."""
+    curses.start_color()
+    curses.use_default_colors()
+    curses.init_pair(1, curses.COLOR_GREEN, -1)
+    curses.init_pair(2, curses.COLOR_YELLOW, -1)
+    curses.init_pair(3, curses.COLOR_BLUE, -1)
+    curses.init_pair(4, curses.COLOR_RED, -1)  # player
+    curses.init_pair(5, curses.COLOR_WHITE, -1)
+    return {
+        0: curses.color_pair(1),
+        1: curses.color_pair(2),
+        2: curses.color_pair(3),
+        3: curses.color_pair(5),
+        4: curses.color_pair(4),
+        5: curses.color_pair(5),
+    }
 
-        while True:
-            stdscr.clear()
 
-            max_y, max_x = stdscr.getmaxyx()
-            visible_tiles_y = max_y // 2
-            visible_tiles_x = max_x // 4
+def draw_stack(screen, stack):
+    """Draw visible states bottom to top, then show them at once."""
+    screen.erase()
+    start = len(stack) - 1
+    while start > 0 and stack[start].is_overlay:
+        start -= 1
+    for state in stack[start:]:
+        state.draw(screen)
+    screen.refresh()
 
-            self.camera.update(
-                self.player.player_y, self.player.player_x, 
-                visible_tiles_y, visible_tiles_x, 
-                self.game_map.map_height, self.game_map.map_width
-            )
 
-            self.game_map.draw(
-                stdscr, self.camera, visible_tiles_y, visible_tiles_x, 
-                max_y, max_x, color_map
-            )
+def apply_request(stack, game, state):
+    """The only place where states are switched."""
+    if state.request is None:
+        return
+    kind, new_state = state.request
+    state.request = None
+    if kind == "push":
+        stack.append(new_state)
+    elif kind == "pop":
+        stack.pop()
+    elif kind == "replace":
+        stack[-1] = new_state
+    elif kind == "quit":
+        game.running = False
 
-            stdscr.noutrefresh()
-            self.player.draw(stdscr, self.camera.camera_y, self.camera.camera_x, max_y, max_x)
 
-            key = stdscr.getch()
-            if key == ord('q'):
-                break
+def main(stdscr):
+    curses.curs_set(0)
+    stdscr.keypad(True)
+    game = Game()
+    game.color_map = setup_colors()
+    stack = [TitleState(game)]
 
-            old_y =self.player.player_y
-            old_x = self.player.player_x
-    
-            player_has_moved = self.player.handle_movement(key, self.game_map.tile_map_grid)
-
-            if player_has_moved:
-                transition = self.game_map.check_transition(self.player.player_y, self.player.player_x)
-                if transition:
-                    target_map = transition[0]
-                    target_y = transition[1]
-                    target_x = transition[2]
-
-                    if target_y is None:
-                        target_y = self.return_point[0]
-                        target_x = self.return_point[1]
-                    else:
-                        self.return_point = (old_y, old_x)
-
-                    self.game_map = GameMap(target_map)
-                    self.game_map.transitions = TRANSITIONS[target_map]
-
-                    self.player.player_y = target_y
-                    self.player.player_x = target_x
-
-                else:
-                    player_will_encounter = check_encounter(self.game_map.tile_map_grid, self.player.player_y, self.player.player_x)
-                    if player_will_encounter:
-                        stdscr.addstr(0,0,"you have encountered a monster")
-                        stdscr.getch()
-
+    while game.running and stack:
+        draw_stack(stdscr, stack)
+        top = stack[-1]
+        key = stdscr.getch()
+        top.handle_key(key)
+        top.update()
+        apply_request(stack, game, top)
 
 
 if __name__ == "__main__":
-    engine = GameEngine("map1.txt")
-    curses.wrapper(engine.run)
+    curses.wrapper(main)

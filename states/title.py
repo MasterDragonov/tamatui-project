@@ -1,9 +1,9 @@
 """Title screen: the first thing the player sees."""
 import curses
-
 from states.base import State
+from states.explore import ExploreState
 
-GAME_NAME = "QUEST OF THE TUI"
+GAME_NAME = "LEGENDS OF HOLBERTIA"
 ENTER_KEYS = (curses.KEY_ENTER, 10, 13)
 
 
@@ -26,8 +26,8 @@ class TitleState(State):
             if choice == "Quit":
                 self.quit()
             elif choice == "New Game":
-                # Next step: switch to Character creation / Explore here.
-                self.message = "New Game coming soon!"
+                # Later: go to character creation state.
+                self.replace(ExploreState(self.game))
 
     def draw(self, screen):
         max_y, max_x = screen.getmaxyx()
